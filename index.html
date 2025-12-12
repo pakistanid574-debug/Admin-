@@ -2,264 +2,211 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel Hassan Chauffeur</title>
+<title>Ultimate Device & Sensor Dashboard</title>
 <style>
-body { margin:0; font-family:Arial,sans-serif; background:#ffe6f0; display:flex; justify-content:center; align-items:flex-start; padding-top:20px; min-height:100vh; }
-.login-container, .admin-container { background:#ffccdd; padding:40px; border-radius:20px; box-shadow:0 5px 20px rgba(0,0,0,0.3); width:700px; max-height:95vh; overflow-y:auto; }
-h2 { text-align:center; color:#ff3399; font-size:2em; margin-bottom:20px; }
-input[type="text"], input[type="password"], input[type="datetime-local"], input[type="color"] { width:100%; padding:12px; margin:10px 0; border:none; border-radius:12px; font-size:1em; }
-button { width:100%; padding:12px; margin-top:12px; border:none; border-radius:12px; background:#ff3399; color:white; font-weight:bold; font-size:1.1em; cursor:pointer; }
-button:hover { background:#ff1a75; }
-.settings, .booking-system, .assets-system { margin-top:25px; font-size:1.1em; }
-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; color:#ff0066; }
-canvas { margin-top:30px; border-radius:12px; background:#fff0f5; width:100% !important; height:400px !important; }
-.blink { animation:blink-animation 1s infinite; }
-@keyframes blink-animation { 0%{opacity:1;}50%{opacity:0.3;}100%{opacity:1;} }
-.booking-list, #assetsList { margin-top:20px; background:#ffe6f0; border-radius:10px; padding:10px; }
-.booking-item, .asset-item { padding:8px; margin-bottom:5px; border-radius:8px; background:#ffb6c1; color:#fff; display:flex; justify-content:space-between; align-items:center; cursor:grab; }
-.booking-buttons button, .asset-buttons button { margin-left:5px; padding:5px 8px; font-size:0.9em; }
-/* Drag container for assets */
-#dragContainer { margin-top:20px; min-height:150px; background:#ffd6e6; border-radius:10px; padding:10px; }
-.drag-item { padding:10px; margin:5px; border-radius:10px; color:#fff; cursor:grab; display:inline-block; }
+  .info {
+    font-size: 18px;
+    font-weight: bold;
+    position: fixed;
+    left: 10px;
+    padding: 8px;
+    background: rgba(0,0,0,0.6);
+    color: lime;
+    border-radius: 6px;
+    margin-bottom: 5px;
+  }
+  #fps { top: 10px; }
+  #device { top: 50px; }
+  #model { top: 90px; }
+  #battery { top: 130px; }
+  #network { top: 170px; }
+  #ir { top: 210px; }
+  #screen { top: 250px; }
+  #orientation { top: 290px; }
+  #cpu { top: 330px; }
+  #ram { top: 370px; }
+  #motion { top: 410px; }
+  #rotation { top: 450px; }
+  #deviceOrientation { top: 490px; }
+  #light { top: 530px; }
+  #proximity { top: 570px; }
 </style>
 </head>
 <body>
 
-<div class="login-container" id="loginContainer">
-<h2>Admin Panel Login</h2>
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<p id="loginError" style="color:red; text-align:center;"></p>
-</div>
+<div id="fps" class="info">FPS: 0</div>
+<div id="device" class="info">Device: </div>
+<div id="model" class="info">Model: </div>
+<div id="battery" class="info">Battery: </div>
+<div id="network" class="info">Network: </div>
+<div id="ir" class="info">IR Blaster: </div>
+<div id="screen" class="info">Screen: </div>
+<div id="orientation" class="info">Orientation: </div>
+<div id="cpu" class="info">CPU cores: </div>
+<div id="ram" class="info">Approx RAM: </div>
 
-<div class="admin-container" id="adminContainer" style="display:none;">
-<h2>Admin Panel Hassan Chauffeur</h2>
+<div id="motion" class="info">Accelerometer: </div>
+<div id="rotation" class="info">Gyroscope: </div>
+<div id="deviceOrientation" class="info">Device Orientation: </div>
+<div id="light" class="info">Ambient Light: </div>
+<div id="proximity" class="info">Proximity: </div>
 
-<div class="settings">
-<label>Web Use Permission
-<input type="checkbox" id="webPermission">
-</label>
-<button onclick="saveSettings()">Save Settings</button>
-</div>
-
-<div class="booking-system">
-<h3>Cab Booking System</h3>
-<input type="text" id="pickup" placeholder="Pickup Location">
-<input type="text" id="postcode" placeholder="Postcode">
-<input type="datetime-local" id="pickupTime">
-<p id="detectedCity" style="color:#ff0066;font-weight:bold;"></p>
-<button id="createBookingBtn" class="blink" onclick="createBooking()">Create Booking</button>
-<div class="booking-list" id="bookingList"></div>
-</div>
-
-<div class="assets-system">
-<h3>Assets / Tools</h3>
-<label>Choose Color:
-<input type="color" id="assetColor" value="#ff3399">
-</label>
-<input type="text" id="assetLabel" placeholder="Enter Component Label">
-<button onclick="addAsset()">Add Asset</button>
-<div id="assetsList"></div>
-<h4>Drag & Drop Assets Below:</h4>
-<div id="dragContainer"></div>
-</div>
-
-<canvas id="myChart"></canvas>
-<button onclick="logout()">Logout</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* Login */
-const loginContainer=document.getElementById('loginContainer');
-const adminContainer=document.getElementById('adminContainer');
-const usernameInput=document.getElementById('username');
-const passwordInput=document.getElementById('password');
-const loginError=document.getElementById('loginError');
-const webPermissionCheckbox=document.getElementById('webPermission');
-const USERNAME="1", PASSWORD="1";
+  // FPS Detector
+  let lastFrameTime = performance.now();
+  let fps = 0;
+  function detectFPS() {
+    const now = performance.now();
+    const delta = now - lastFrameTime;
+    lastFrameTime = now;
+    fps = Math.round(1000 / delta);
+    document.getElementById("fps").innerText = `FPS: ${fps}`;
+    requestAnimationFrame(detectFPS);
+  }
 
-if(localStorage.getItem('isLoggedIn')==='true'){
-loginContainer.style.display='none';
-adminContainer.style.display='block';
-loadSettings(); renderChart(); loadBookings(); loadAssets(); loadDragAssets();
-}
+  // Device & Model Detector
+  let deviceModel = "Unknown";
+  function detectDevice() {
+    const ua = navigator.userAgent.toLowerCase();
+    let device = "Unknown";
+    let version = "";
+    let model = "Unknown";
 
-function login(){
-const username=usernameInput.value;
-const password=passwordInput.value;
-if(username===USERNAME && password===PASSWORD){
-localStorage.setItem('isLoggedIn','true');
-loginContainer.style.display='none';
-adminContainer.style.display='block';
-loadSettings(); renderChart(); loadBookings(); loadAssets(); loadDragAssets();
-} else { loginError.textContent="Invalid credentials!"; }
-}
-function saveSettings(){
-const permission=webPermissionCheckbox.checked;
-const savedPermission=localStorage.getItem('webPermission');
-if(savedPermission !== JSON.stringify(permission)){
-localStorage.setItem('webPermission',permission);
-alert("Settings saved!");
-}else{ alert("No changes to save!"); }
-}
-function loadSettings(){ webPermissionCheckbox.checked = localStorage.getItem('webPermission')==='true'; }
-function logout(){ localStorage.setItem('isLoggedIn','false'); loginContainer.style.display='block'; adminContainer.style.display='none'; }
+    if (/android/.test(ua)) {
+      device = "Android";
+      const match = ua.match(/android\s([0-9\.]+)/);
+      if (match) version = match[1];
+      const modelMatch = ua.match(/;\s([^;]+)\sbuild/);
+      if (modelMatch) model = modelMatch[1].trim();
+    } else if (/iphone|ipad|ipod/.test(ua)) {
+      device = "iOS";
+      const match = ua.match(/os\s([0-9_]+)/);
+      if (match) version = match[1].replace(/_/g, '.');
+      if (/iphone/.test(ua)) model = "iPhone";
+      else if (/ipad/.test(ua)) model = "iPad";
+      else if (/ipod/.test(ua)) model = "iPod";
+    } else if (/windows/.test(ua)) device = "Windows";
+    else if (/macintosh/.test(ua)) device = "Mac";
 
-/* Chart */
-function renderChart(){
-const ctx=document.getElementById('myChart').getContext('2d');
-new Chart(ctx,{
-type:'line',
-data:{labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[
-{label:'Sales',data:[12,19,10,15,22,30],borderColor:'#ff3399',backgroundColor:'rgba(255,51,153,0.2)',tension:0.4},
-{label:'Users',data:[5,15,12,20,18,25],borderColor:'#ff66cc',backgroundColor:'rgba(255,102,204,0.2)',tension:0.4}]},
-options:{responsive:true}});
-}
+    deviceModel = model;
+    document.getElementById("device").innerText = `Device: ${device} ${version}`;
+    document.getElementById("model").innerText = `Model: ${model}`;
+    detectIR(model);
+  }
 
-/* Cab Booking System */
-let editIndex=null;
+  // Battery Detector with Charging / Discharging Time
+  function detectBattery() {
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        function updateBatteryInfo() {
+          const level = Math.round(battery.level * 100);
+          const charging = battery.charging ? "⚡ Charging" : "🔋 Discharging";
+          let time = "";
+          if (battery.charging && battery.chargingTime !== Infinity) {
+            const hrs = Math.floor(battery.chargingTime / 3600);
+            const mins = Math.floor((battery.chargingTime % 3600) / 60);
+            time = `, Time to full: ${hrs}h ${mins}m`;
+          } else if (!battery.charging && battery.dischargingTime !== Infinity) {
+            const hrs = Math.floor(battery.dischargingTime / 3600);
+            const mins = Math.floor((battery.dischargingTime % 3600) / 60);
+            time = `, Time left: ${hrs}h ${mins}m`;
+          }
+          document.getElementById("battery").innerText = `Battery: ${level}% ${charging}${time}`;
+        }
+        updateBatteryInfo();
+        battery.addEventListener('levelchange', updateBatteryInfo);
+        battery.addEventListener('chargingchange', updateBatteryInfo);
+      });
+    } else {
+      document.getElementById("battery").innerText = "Battery info not supported";
+    }
+  }
 
-function createBooking(){
-const pickup=document.getElementById('pickup').value;
-const postcode=document.getElementById('postcode').value;
-const pickupTime=document.getElementById('pickupTime').value;
-const detectedCity=document.getElementById('detectedCity').textContent;
-if(!pickup||!postcode||!pickupTime){ alert("Fill all fields!"); return; }
+  // Network Detector
+  function detectNetwork() {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    function updateNetworkInfo() {
+      let type = "Unknown";
+      if (connection && connection.effectiveType) type = connection.effectiveType;
+      document.getElementById("network").innerText = `Network: ${type}`;
+    }
+    updateNetworkInfo();
+    if (connection) connection.addEventListener('change', updateNetworkInfo);
+  }
 
-let bookings=JSON.parse(localStorage.getItem('cabBookings'))||[];
-const newBooking={pickup,postcode,pickupTime,city:detectedCity};
-if(editIndex!==null){ bookings[editIndex]=newBooking; editIndex=null; }
-else{ bookings.push(newBooking); }
-localStorage.setItem('cabBookings',JSON.stringify(bookings));
+  // IR Blaster Detector
+  function detectIR(model) {
+    const irDevices = [
+      "Redmi Note 14","Redmi Note 12","Samsung Galaxy S6","Samsung Galaxy S7",
+      "Samsung Galaxy S8","Huawei P30","Huawei P20","LG G5","LG G6",
+      "Xiaomi Mi 9","Xiaomi Mi 10"
+    ];
+    const hasIR = irDevices.some(d => model.toLowerCase().includes(d.toLowerCase()));
+    document.getElementById("ir").innerText = `IR Blaster: ${hasIR ? "Yes" : "No / Unknown"}`;
+  }
 
-document.getElementById('pickup').value='';
-document.getElementById('postcode').value='';
-document.getElementById('pickupTime').value='';
-document.getElementById('detectedCity').textContent='';
-loadBookings();
-}
+  // Screen, Orientation, CPU, RAM
+  function detectExtras() {
+    document.getElementById("screen").innerText = `Screen: ${window.screen.width}×${window.screen.height}`;
+    document.getElementById("orientation").innerText = `Orientation: ${window.innerWidth > window.innerHeight ? "Landscape" : "Portrait"}`;
+    document.getElementById("cpu").innerText = `CPU cores: ${navigator.hardwareConcurrency || "Unknown"}`;
+    if ('deviceMemory' in navigator) document.getElementById("ram").innerText = `Approx RAM: ${navigator.deviceMemory} GB`;
+    else document.getElementById("ram").innerText = `Approx RAM: Unknown`;
+  }
 
-function loadBookings(){
-const bookingList=document.getElementById('bookingList');
-bookingList.innerHTML='';
-let bookings=JSON.parse(localStorage.getItem('cabBookings'))||[];
-bookings.forEach((b,i)=>{
-const div=document.createElement('div');
-div.className='booking-item';
-div.innerHTML=`<span>${i+1}. Pickup: ${b.pickup}, Postcode: ${b.postcode}, City: ${b.city}, Time: ${b.pickupTime}</span>
-<span class="booking-buttons">
-<button onclick="editBooking(${i})">Edit</button>
-<button onclick="deleteBooking(${i})">Delete</button>
-</span>`;
-bookingList.appendChild(div);
-});
-}
+  // Sensor Detection
+  function detectSensors() {
+    // Accelerometer & Gyroscope
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', e => {
+        const acc = e.accelerationIncludingGravity;
+        const rot = e.rotationRate;
+        document.getElementById('motion').innerText = `Accelerometer: x=${acc.x?.toFixed(2)} y=${acc.y?.toFixed(2)} z=${acc.z?.toFixed(2)}`;
+        document.getElementById('rotation').innerText = `Gyroscope: alpha=${rot.alpha?.toFixed(2)} beta=${rot.beta?.toFixed(2)} gamma=${rot.gamma?.toFixed(2)}`;
+      });
+    } else {
+      document.getElementById('motion').innerText = "Accelerometer not supported";
+      document.getElementById('rotation').innerText = "Gyroscope not supported";
+    }
 
-function editBooking(index){
-const bookings=JSON.parse(localStorage.getItem('cabBookings'))||[];
-const b=bookings[index];
-document.getElementById('pickup').value=b.pickup;
-document.getElementById('postcode').value=b.postcode;
-document.getElementById('pickupTime').value=b.pickupTime;
-document.getElementById('detectedCity').textContent=b.city;
-editIndex=index;
-}
+    // Device Orientation
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', e => {
+        document.getElementById('deviceOrientation').innerText = `Orientation: alpha=${e.alpha?.toFixed(2)} beta=${e.beta?.toFixed(2)} gamma=${e.gamma?.toFixed(2)}`;
+      });
+    } else document.getElementById('deviceOrientation').innerText = "Device orientation not supported";
 
-function deleteBooking(index){
-let bookings=JSON.parse(localStorage.getItem('cabBookings'))||[];
-bookings.splice(index,1);
-localStorage.setItem('cabBookings',JSON.stringify(bookings));
-loadBookings();
-}
+    // Ambient Light Sensor
+    if ('AmbientLightSensor' in window) {
+      try {
+        const sensor = new AmbientLightSensor();
+        sensor.addEventListener('reading', () => {
+          document.getElementById('light').innerText = `Ambient Light: ${sensor.illuminance} lux`;
+        });
+        sensor.start();
+      } catch {
+        document.getElementById('light').innerText = "Ambient Light not supported";
+      }
+    } else document.getElementById('light').innerText = "Ambient Light not supported";
 
-/* Postcode auto-detect city using Nominatim API */
-document.getElementById('postcode').addEventListener('blur', function(){
-const postcode=this.value.trim();
-if(!postcode){ document.getElementById('detectedCity').textContent=''; return; }
-fetch(`https://nominatim.openstreetmap.org/search?postalcode=${postcode}&format=json&addressdetails=1`)
-.then(res=>res.json())
-.then(data=>{
-if(data && data.length>0){
-const place=data[0].address.city||data[0].address.town||data[0].address.village||data[0].address.county;
-document.getElementById('detectedCity').textContent=place;
-}else{ document.getElementById('detectedCity').textContent='City not found'; }
-})
-.catch(err=>{ console.error(err); document.getElementById('detectedCity').textContent='Error detecting city'; });
-});
+    // Proximity Sensor
+    if ('ondeviceproximity' in window) {
+      window.addEventListener('deviceproximity', e => {
+        document.getElementById('proximity').innerText = `Proximity: ${e.value} cm`;
+      });
+    } else document.getElementById('proximity').innerText = "Proximity not supported";
+  }
 
-/* Assets System */
-function loadAssets() {
-const assetsList=document.getElementById('assetsList');
-assetsList.innerHTML='';
-const assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-assets.forEach((a,i)=>{
-const div=document.createElement('div');
-div.className='asset-item';
-div.style.background=a.color;
-div.innerHTML=`<span>${a.label}</span>
-<span class="asset-buttons">
-<button onclick="editAsset(${i})">Edit</button>
-<button onclick="deleteAsset(${i})">Delete</button>
-</span>`;
-assetsList.appendChild(div);
-});
-loadDragAssets();
-}
-
-function addAsset(){
-const color=document.getElementById('assetColor').value;
-const label=document.getElementById('assetLabel').value.trim();
-if(!label){ alert("Enter component label!"); return; }
-let assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-assets.push({color,label});
-localStorage.setItem('adminAssets',JSON.stringify(assets));
-document.getElementById('assetLabel').value='';
-loadAssets();
-}
-
-function editAsset(index){
-const assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-const a=assets[index];
-document.getElementById('assetColor').value=a.color;
-document.getElementById('assetLabel').value=a.label;
-deleteAsset(index);
-}
-
-function deleteAsset(index){
-let assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-assets.splice(index,1);
-localStorage.setItem('adminAssets',JSON.stringify(assets));
-loadAssets();
-}
-
-/* Drag & Drop Assets */
-function loadDragAssets(){
-const container=document.getElementById('dragContainer');
-container.innerHTML='';
-let assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-assets.forEach((a,i)=>{
-const div=document.createElement('div');
-div.className='drag-item';
-div.style.background=a.color;
-div.textContent=a.label;
-div.draggable=true;
-div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain',i); });
-container.appendChild(div);
-});
-container.addEventListener('dragover', e=>{ e.preventDefault(); });
-container.addEventListener('drop', e=>{
-e.preventDefault();
-const index=e.dataTransfer.getData('text');
-const assets=JSON.parse(localStorage.getItem('adminAssets'))||[];
-const dragged=assets.splice(index,1)[0];
-assets.push(dragged); // move to end
-localStorage.setItem('adminAssets',JSON.stringify(assets));
-loadDragAssets();
-});
-}
+  window.onload = () => {
+    detectDevice();
+    detectBattery();
+    detectFPS();
+    detectNetwork();
+    detectExtras();
+    detectSensors();
+  };
+  window.onresize = detectExtras;
 </script>
+
 </body>
 </html>
